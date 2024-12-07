@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  File      File[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model File {
+  id             String          @id @default(uuid())
+  name           String
+  originalName   String
+  path           String
+  mimetype       String
+  size           Int
+  status         FileStatus      @default(PENDING)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  userId         String?
+  user           User?           @relation(fields: [userId], references: [id])
+  metadata       Metadata?       @relation(fields: [metadataId], references: [id])
+  metadataId     String?
+  processingLogs ProcessingLog[]
+  QueueTask      QueueTask[]
+}
+
+model Metadata {
+  id          String   @id @default(uuid())
+  textContent String?
+  csvData     String?
+  excelData   String?
+  thumbnail   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  File        File[]
+}
+
+model ProcessingLog {
+  id        String   @id @default(uuid())
+  fileId    String
+  file      File     @relation(fields: [fileId], references: [id])
+  message   String
+  level     LogLevel @default(INFO)
+  timestamp DateTime @default(now())
+}
+
+model QueueTask {
+  id        String     @id @default(uuid())
+  fileId    String
+  file      File       @relation(fields: [fileId], references: [id])
+  status    TaskStatus @default(PENDING)
+  message   String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+enum FileStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum LogLevel {
+  INFO
+  WARNING
+  ERROR
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}

@@ -1,0 +1,10 @@
+{
+  "name": "file-upload-system",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx concurrently \"pnpm --prefix frontend dev\" \"pnpm --prefix backend start:dev\"",
+    "dev:frontend": "pnpm --prefix frontend dev",
+    "dev:backend": "pnpm --prefix backend start:dev"
+  }
+}
